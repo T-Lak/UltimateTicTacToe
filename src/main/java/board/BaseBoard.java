@@ -11,30 +11,28 @@ import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
-public abstract class BoardBase {
+public abstract class BaseBoard {
 
-    private int[][] board;
-    private Status status;
-    private Move move;
-    private List<Move> moveHistory;
+    private final int[][] board;
     private List<Integer> boardsInProgress;
-    private int[] decidedBoards;
+    private final int[] decidedBoards;
+    private final List<Move> moveHistory;
+    private Status status;
 
-    public BoardBase() {
+    public BaseBoard() {
         board = new int[9][9];
-        status = Status.IN_PROGRESS;
         boardsInProgress = Arrays.asList(0, 1, 2, 3, 4, 5, 6, 7, 8);
         decidedBoards = new int[]{-1, -1, -1, -1, -1, -1, -1, -1, -1};
         moveHistory = new ArrayList<>();
+        status = Status.IN_PROGRESS;
     }
 
-    public BoardBase(BoardBase other) {
+    public BaseBoard(BaseBoard other) {
         board = copyBoard(other.getBoard());
-        status = other.getStatus();
-        move = other.getMove();
         boardsInProgress = new ArrayList<>(other.getBoardsInProgress());
         decidedBoards = Arrays.copyOf(other.getDecidedBoards(), 9);
         moveHistory = new ArrayList<>(other.getMoveHistory());
+        status = other.getStatus();
     }
 
     protected void performMove(Move move) {
@@ -45,20 +43,16 @@ public abstract class BoardBase {
 
         if (lastPlayer != null && currentPlayer == lastPlayer)
             throw new IllegalArgumentException(
-                    String.format("Player should be %s, but is %s", currentPlayer, lastPlayer)
+                    String.format("Player should be %s, but is %s", move.getOpponent(), currentPlayer)
             );
 
         board[boardIndex][position.getIndex()] = currentPlayer.getId();
 
-        updateBoard(boardIndex, currentPlayer);
+        updateBoard(move, boardIndex, currentPlayer);
     }
 
     protected int[][] getBoard() {
         return board;
-    }
-
-    protected Move getMove() {
-        return move;
     }
 
     protected Status getStatus() {
@@ -85,33 +79,25 @@ public abstract class BoardBase {
         return moveHistory.isEmpty() ? null : moveHistory.get(moveHistory.size() - 1);
     }
 
-//    protected int[] getRandomBoard() {
-//        Random random = new Random();
-//
-//        var boardIndex = boardsInProgress.stream()
-//                .skip(random.nextInt(boardsInProgress.size()))
-//                .findFirst()
-//                .orElseThrow();
-//
-//        return board[boardIndex];
-//    }
-
-    protected int[] getNextBoard() {
-        return null;
-    }
-
     protected int[] getBoardAt(int index) {
         return board[index];
     }
 
     protected boolean randomContinuationPossible() {
-        var lastMove = getLastMove();
-        var nextBoardIndex = lastMove.position().getIndex();
+        var nextBoardIndex = getNextBoardIndex();
 
-        return decidedBoards[nextBoardIndex] != -1;
+        return nextBoardIndex == -1 || (nextBoardIndex >= 0 && decidedBoards[nextBoardIndex] != -1);
     }
 
-    private void updateBoard(int boardIndex, Player player) {
+    protected int getNextBoardIndex() {
+        Move lastMove = getLastMove();
+        if (lastMove == null || lastMove.position() == null) {
+            return -1;
+        }
+        return lastMove.position().getIndex();
+    }
+
+    private void updateBoard(Move move, int boardIndex, Player player) {
         moveHistory.add(move);
         updateLocalBoardStatus(board[boardIndex], boardIndex, player.getId());
         updateGlobalBoardStatus(player.getId());
@@ -139,10 +125,10 @@ public abstract class BoardBase {
         }
     }
 
-    private void updateLocalBoardStatus(int[] board, int boardIndex, int playerId) {
-        if (checkWin(board, playerId)) {
+    private void updateLocalBoardStatus(int[] localBoard, int boardIndex, int playerId) {
+        if (checkWin(localBoard, playerId)) {
             decidedBoards[boardIndex] = playerId;
-        } else if (checkLocalDraw(board)) {
+        } else if (checkLocalDraw(localBoard)) {
             decidedBoards[boardIndex] = 0;
         }
     }

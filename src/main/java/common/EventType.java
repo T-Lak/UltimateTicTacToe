@@ -1,6 +1,6 @@
 package common;
 
-public enum Event {
+public enum EventType {
 
     MOVE_MADE
 
