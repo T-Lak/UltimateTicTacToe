@@ -3,14 +3,11 @@ package board;
 import common.Move;
 import common.Player;
 import common.Position;
-import common.Status;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 
-import java.util.Arrays;
 import java.util.Map;
 import java.util.stream.Stream;
 
@@ -105,49 +102,5 @@ public class BaseBoardTest {
 
         assertEquals(second.player().getId(), secondPosition, "Second move should be correctly placed.");
     }
-
-//    @Test
-//    void testDrawCondition() {
-//        int[][] drawBoard = new int[][] {
-//                {1, 1, 2, 2, 2, 1, 1, 2, 1},
-//                {1, 1, 2, 2, 2, 1, 1, 2, 1},
-//                {1, 1, 2, 2, 2, 1, 1, 2, 1},
-//                {1, 1, 2, 2, 2, 1, 1, 2, 1},
-//                {1, 1, 2, 2, 2, 1, 1, 2, 1},
-//                {1, 1, 2, 2, 2, 1, 1, 2, 1},
-//                {1, 1, 2, 2, 2, 1, 1, 2, 1},
-//                {1, 1, 2, 2, 2, 1, 1, 2, 1},
-//                {1, 1, 2, 2, 2, 1, 1, 2, 1}
-//        };
-//
-//        Move firstMove = new Move(0, Position.MIDDLE_CENTER, Player.AI);
-//        board.performMove(firstMove);
-//
-//        for (int i = 0; i < 9; i++) {
-//            int[] localBoard = board.getBoardAt(i);
-//            for (int j = 0; j < 9; j++) {
-//                if (localBoard[j] == 0) {
-//                    var player = drawBoard[i][j] == 1 ? Player.AI : Player.HUMAN;
-//                    var move = new Move(i, Position.fromIndex(j), player);
-//                    localBoard[j] = player.getId();
-//                }
-//            }
-//        }
-//
-//        for (int l = 0; l < 9; l++) {
-//            Move lastMove = new Move(l, Position., Player.HUMAN);
-//        }
-//
-//        Move lastMove = new Move(4, Position.MIDDLE_CENTER, Player.HUMAN);
-//        board.performMove(lastMove);
-//
-//        for (int k = 0; k < 9; k++) {
-//            System.out.println(Arrays.toString(board.getBoardAt(k)));
-//        }
-//
-//        System.out.println(Arrays.toString(board.getDecidedBoards()));
-//
-//        assertEquals(Status.DRAW, board.getStatus());
-//    }
 
 }

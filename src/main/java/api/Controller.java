@@ -1,42 +1,71 @@
 package api;
 
 import board.GlobalBoard;
-import common.EventType;
 import common.Move;
 import common.Player;
 import common.Position;
-import event.EventManager;
 import mcts.MCTSAgent;
 
-import java.util.List;
+import java.util.Map;
 
-import static api.ApiUtils.transformBoardToList;
-import static common.EventType.MOVE_MADE;
+import static api.Serializer.serialize;
 
 public class Controller {
 
-    private final GlobalBoard board;
-    private final MCTSAgent mctsAgent;
+    private GlobalBoard board;
+    private MCTSAgent mctsAgent;
 
     public Controller() {
-        var eventManager = new EventManager(MOVE_MADE);
-        board = new GlobalBoard(eventManager);
-        mctsAgent = new MCTSAgent(eventManager, 8);
+        init();
     }
 
-    public List<List<String>> performHumanMove(int boardIndex, int position) {
+    /**
+     * Initializes a new game by creating a fresh board and AI agent.
+     */
+    public void init() {
+        board = new GlobalBoard();
+        mctsAgent = new MCTSAgent(8);
+    }
+
+    /**
+     * Resets the game state by reinitializing the board and AI agent.
+     */
+    public void reset() {
+        init();
+    }
+
+    /**
+     * Performs a move for the human player.
+     *
+     * @param boardIndex The index of the local board where the move is made.
+     * @param position The position within the local board.
+     * @return A serialized representation of the updated game state.
+     */
+    public Map<String, Object> performHumanMove(int boardIndex, int position) {
         Move move = new Move(boardIndex, Position.fromIndex(position), Player.HUMAN);
         board.performMove(move);
         mctsAgent.updateTree(move);
-        return transformBoardToList(board.getBoard());
+        return serialize(board);
     }
 
-    public List<List<String>> performAIMove() {
+    /**
+     * Performs a move for the AI player.
+     *
+     * @return A serialized representation of the updated game state.
+     */
+    public Map<String, Object> performAIMove() {
         Move move = mctsAgent.getNextMove();
         board.performMove(move);
-        return transformBoardToList(board.getBoard());
+        return serialize(board);
     }
 
+    /**
+     * Checks whether a move made by the human player is valid.
+     *
+     * @param boardIndex The index of the local board.
+     * @param position The position within the local board.
+     * @return True if the move is valid, false otherwise.
+     */
     public boolean isValidHumanMove(int boardIndex, int position) {
         return board.isValidHumanMove(boardIndex, position);
     }
